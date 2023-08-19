@@ -38,9 +38,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'readit_app.apps.ReaditAppConfig',
+    "readit_app.apps.ReaditAppConfig",
+    "rest_framework",
+    "rest_framework.authtoken",
 ]
-
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+    ],
+}
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -76,13 +82,13 @@ WSGI_APPLICATION = "readit.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'readit_db',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "readit_db",
         "USER": os.getenv("USER"),
         "PASSWORD": os.getenv("PASSWORD"),
-        'HOST': 'localhost',
-        'PORT': '5432',      
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
 
