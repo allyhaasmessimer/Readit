@@ -9,6 +9,8 @@ import os
 import requests
 from django.http import JsonResponse
 from decouple import config
+from django.utils.text import Truncator
+
 
 # from django.contrib.auth.models import User
 # from rest_framework.authtoken.views import ObtainAuthToken
@@ -152,3 +154,71 @@ class SearchView(APIView):
 
         search_results = self.book_search(search_query)
         return Response(search_results)
+
+
+class AddToWantToReadView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, book_id):
+        # Fetch book information from Google Books API
+        google_books_url = f"https://www.googleapis.com/books/v1/volumes/{book_id}"
+        response = requests.get(google_books_url)
+        if response.status_code != 200:
+            return Response({"error": "Book not found in Google Books API"}, status=404)
+
+        google_book_data = response.json()
+        book_info = google_book_data.get("volumeInfo", {})
+
+        print("Received Book Title:", book_info.get("title"))
+        print("Author Length:", len(", ".join(book_info.get("authors", ["Unknown"]))))
+        print(
+            "Cover Image URL Length:",
+            len(book_info.get("imageLinks", {}).get("thumbnail", "")),
+        )
+        print("Description Length:", len(book_info.get("description", "")))
+        truncated_description = Truncator(book_info.get("description", "")).chars(190)
+        # Create a new Book entry in your local database
+        book, created = Book.objects.get_or_create(
+            external_id=book_id,
+            defaults={
+                "title": book_info.get("title", ""),
+                "author": ", ".join(book_info.get("authors", ["Unknown"])),
+                # "cover_image_url": book_info.get("imageLinks", {}).get("thumbnail", ""),
+                "description": truncated_description,
+            },
+        )
+
+        # Add the book to the user's "want to read" list
+        user_profile = request.user.userprofile
+        user_profile.books_want_to_read.add(book)
+
+        return Response({"message": "Book added to your 'want to read' list."})
+
+
+class AddToReadView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, book_id):
+        # FETCH FROM GOOGLE BOOKS API
+        google_books_url = f"https://www.googleapis.com/books/v1/volumes/{book_id}"
+        response = requests.get(google_books_url)
+        if response.status_code != 200:
+            return Response({"ERROR": "Book not found in Google Books API"}, status=404)
+
+        google_book_data = response.json()
+        book_info = google_book_data.get("volumeInfo", {})
+        truncated_description = Truncator(book_info.get("description", "")).chars(190)
+
+        book, created = Book.objects.get_or_create(
+            external_id=book_id,
+            defaults={
+                "title": book_info.get("title", ""),
+                "author": ", ".join(book_info.get("authors", ["unknown"])),
+                "description": truncated_description,
+            },
+        )
+
+        user_profile = request.user.userprofile
+        user_profile.books_read.add(book)
+
+        return Response({"message": "Book added to your 'read' list."})
