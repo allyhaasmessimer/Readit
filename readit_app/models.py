@@ -24,8 +24,8 @@ class Book(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    books_read = models.ManyToManyField(Book, related_name="read_by")
-    books_want_to_read = models.ManyToManyField(Book, related_name="wanted_by")
+    books_read = models.ManyToManyField(Book, related_name="read_by", blank=True)
+    books_want_to_read = models.ManyToManyField(Book, related_name="wanted_by", blank=True)
 
     def __str__(self):
         return self.user.username
