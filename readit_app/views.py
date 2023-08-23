@@ -11,18 +11,6 @@ from django.http import JsonResponse
 from decouple import config
 from django.utils.text import Truncator
 
-
-# from django.contrib.auth.models import User
-# from rest_framework.authtoken.views import ObtainAuthToken
-# import requests
-# from django.http import JsonResponse
-# from django.views import View
-# from django.utils.decorators import method_decorator
-# from django.views.decorators.csrf import csrf_exempt
-# from rest_framework.permissions import AllowAny
-# from .models import CustomUser, UserProfile, Book, Review
-# from rest_framework.generics import RetrieveAPIView
-# from django.shortcuts import get_object_or_404
 GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes"
 
 api_key = config("API_KEY")
