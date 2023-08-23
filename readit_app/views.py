@@ -5,7 +5,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
-
+import os
+import requests
+from django.http import JsonResponse
+from decouple import config
 
 # from django.contrib.auth.models import User
 # from rest_framework.authtoken.views import ObtainAuthToken
@@ -18,8 +21,9 @@ from rest_framework.permissions import IsAuthenticated
 # from .models import CustomUser, UserProfile, Book, Review
 # from rest_framework.generics import RetrieveAPIView
 # from django.shortcuts import get_object_or_404
+GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes"
 
-# GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes"
+api_key = config("API_KEY")
 
 
 # protected view
@@ -76,6 +80,7 @@ class LoginView(APIView):
             )
 
 
+#   ADD USER PROFILE VIEW
 class AddUserProfile(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -102,21 +107,48 @@ class AddUserProfile(APIView):
         return Response({"message": "User profile updated successfully."})
 
 
-#         custom_users = CustomUser.objects.all()
-#         data = {
-#             "username": list(custom_users.values())
-#         }
-#         return Response(data)
+# LIST OF FAV'D BOOKS BY A USER
+class UserProfileListView(APIView):
+    permission_classes = (IsAuthenticated,)
 
-# username = request.query_params.get('username')
-# print("USERNAME", username)
-# user = CustomUser.objects.get(username=username)
-# user_profile = UserProfile.objects.get(user=user)
+    def get(self, request, *args, **kwargs):
+        user_profile = UserProfile.objects.get(user=request.user)
 
-# data = {
-#     "books_read": list(user_profile.books_read.values()),  # Convert to list
-#     "books_want_to_read": list(
-#         user_profile.books_want_to_read.values()
-#     ),  # Convert to list
-# }
-# return Response(data)
+        books_read = [book.title for book in user_profile.books_read.all()]
+        books_want_to_read = [
+            book.title for book in user_profile.books_want_to_read.all()
+        ]
+
+        data = {
+            "username": user_profile.user.username,
+            "books_read": books_read,
+            "books_want_to_read": books_want_to_read,
+        }
+
+        return Response(data)
+
+
+# BOOK SEARCH
+class SearchView(APIView):
+    permission_classes = (AllowAny,)
+
+    def book_search(self, value):
+        param = {
+            "q": value,
+            "API_KEY": api_key,
+        }
+        api_url = "https://www.googleapis.com/books/v1/volumes"
+
+        response = requests.get(url=api_url, params=param)
+        data = response.json()
+        print(data)
+        return data.get("items", [])
+
+    def post(self, request):
+        search_query = request.data.get("q")
+
+        if not search_query:
+            return Response({"error": "Missing search query 'q'"}, status=400)
+
+        search_results = self.book_search(search_query)
+        return Response(search_results)
