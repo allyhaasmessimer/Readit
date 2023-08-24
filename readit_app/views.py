@@ -62,6 +62,16 @@ class LoginView(APIView):
             )
 
 
+# LOG OUT VIEW
+class LogoutView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        user = request.user
+        Token.objects.filter(user=user).delete()
+        return Response({"message": "Logged out successfully."})
+
+
 #   ADD USER PROFILE VIEW
 class AddUserProfile(APIView):
     permission_classes = (IsAuthenticated,)
@@ -151,28 +161,23 @@ class AddToWantToReadView(APIView):
 
         google_book_data = response.json()
         book_info = google_book_data.get("volumeInfo", {})
-        print("Received Book Title:", book_info.get("title"))
-        print("Author Length:", len(", ".join(book_info.get("authors", ["Unknown"]))))
-        print(
-            "Cover Image URL Length:",
-            len(book_info.get("imageLinks", {}).get("thumbnail", "")),
-        )
-        print("Description Length:", len(book_info.get("description", "")))
+
         truncated_description = Truncator(book_info.get("description", "")).chars(190)
         book, created = Book.objects.get_or_create(
             external_id=book_id,
             defaults={
                 "title": book_info.get("title", ""),
                 "author": ", ".join(book_info.get("authors", ["Unknown"])),
-                # "cover_image_url": book_info.get("imageLinks", {}).get("thumbnail", ""),
                 "description": truncated_description,
             },
         )
 
         user_profile = request.user.userprofile
+        print("User PROFILE:", user_profile)
         user_profile.books_want_to_read.add(book)
+        print("Authenticated User:", request.user)
 
-        return Response({"message": "Book added to your 'want to read' list."})
+        return Response({"message": f"Book added to your {user_profile} 'want to read' list."})
 
 
 # VIEW TO ADD A BOOK TO A USERS' READ LIST OR MOVE IT FROM WANT TO READ TO READ
@@ -187,8 +192,8 @@ class AddToReadView(APIView):
 
         google_book_data = response.json()
         book_info = google_book_data.get("volumeInfo", {})
-        truncated_description = Truncator(book_info.get("description", "")).chars(190)
 
+        truncated_description = Truncator(book_info.get("description", "")).chars(190)
         book_to_move, created = Book.objects.get_or_create(
             external_id=book_id,
             defaults={
@@ -205,6 +210,8 @@ class AddToReadView(APIView):
 
         user_profile.books_read.add(book_to_move)
         user_profile.books_want_to_read.remove(book_to_move)
+        print("User PROFILE:", user_profile)
+        print("Authenticated User:", request.user)
 
         return Response(
             {"message": "Book marked as 'read' and moved to your 'read' list."}
