@@ -10,19 +10,11 @@ import requests
 from django.http import JsonResponse
 from decouple import config
 from django.utils.text import Truncator
+from django.shortcuts import get_object_or_404
 
 GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes"
 
 api_key = config("API_KEY")
-
-
-# protected view
-class HelloView(APIView):
-    #     permission_classes = (IsAuthenticated,)
-
-    def get(self, request):
-        content = {"message": "Hello, World!"}
-        return Response(content)
 
 
 #  SIGN UP VIEW
@@ -102,17 +94,20 @@ class UserProfileListView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
-        user_profile = UserProfile.objects.get(user=request.user)
+        user_profile = get_object_or_404(UserProfile, user=request.user)
 
-        books_read = [book.title for book in user_profile.books_read.all()]
-        books_want_to_read = [
-            book.title for book in user_profile.books_want_to_read.all()
+        books_read = user_profile.books_read.all()
+        books_want_to_read = user_profile.books_want_to_read.all()
+
+        books_read_data = [{"id": book.id, "title": book.title} for book in books_read]
+        books_want_to_read_data = [
+            {"id": book.id, "title": book.title} for book in books_want_to_read
         ]
 
         data = {
             "username": user_profile.user.username,
-            "books_read": books_read,
-            "books_want_to_read": books_want_to_read,
+            "books_read": books_read_data,
+            "books_want_to_read": books_want_to_read_data,
         }
 
         return Response(data)
@@ -144,11 +139,11 @@ class SearchView(APIView):
         return Response(search_results)
 
 
+# VIEW TO ADD A BOOK TO A USERS' WANT TO READ LIST
 class AddToWantToReadView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, book_id):
-        # Fetch book information from Google Books API
         google_books_url = f"https://www.googleapis.com/books/v1/volumes/{book_id}"
         response = requests.get(google_books_url)
         if response.status_code != 200:
@@ -156,7 +151,6 @@ class AddToWantToReadView(APIView):
 
         google_book_data = response.json()
         book_info = google_book_data.get("volumeInfo", {})
-
         print("Received Book Title:", book_info.get("title"))
         print("Author Length:", len(", ".join(book_info.get("authors", ["Unknown"]))))
         print(
@@ -165,7 +159,6 @@ class AddToWantToReadView(APIView):
         )
         print("Description Length:", len(book_info.get("description", "")))
         truncated_description = Truncator(book_info.get("description", "")).chars(190)
-        # Create a new Book entry in your local database
         book, created = Book.objects.get_or_create(
             external_id=book_id,
             defaults={
@@ -176,28 +169,27 @@ class AddToWantToReadView(APIView):
             },
         )
 
-        # Add the book to the user's "want to read" list
         user_profile = request.user.userprofile
         user_profile.books_want_to_read.add(book)
 
         return Response({"message": "Book added to your 'want to read' list."})
 
 
+# VIEW TO ADD A BOOK TO A USERS' READ LIST OR MOVE IT FROM WANT TO READ TO READ
 class AddToReadView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, book_id):
-        # FETCH FROM GOOGLE BOOKS API
         google_books_url = f"https://www.googleapis.com/books/v1/volumes/{book_id}"
         response = requests.get(google_books_url)
         if response.status_code != 200:
-            return Response({"ERROR": "Book not found in Google Books API"}, status=404)
+            return Response({"error": "Book not found in Google Books API"}, status=404)
 
         google_book_data = response.json()
         book_info = google_book_data.get("volumeInfo", {})
         truncated_description = Truncator(book_info.get("description", "")).chars(190)
 
-        book, created = Book.objects.get_or_create(
+        book_to_move, created = Book.objects.get_or_create(
             external_id=book_id,
             defaults={
                 "title": book_info.get("title", ""),
@@ -207,6 +199,41 @@ class AddToReadView(APIView):
         )
 
         user_profile = request.user.userprofile
-        user_profile.books_read.add(book)
 
-        return Response({"message": "Book added to your 'read' list."})
+        if book_to_move in user_profile.books_read.all():
+            return Response({"message": "Book is already in your 'read' list."})
+
+        user_profile.books_read.add(book_to_move)
+        user_profile.books_want_to_read.remove(book_to_move)
+
+        return Response(
+            {"message": "Book marked as 'read' and moved to your 'read' list."}
+        )
+
+
+# DELETE A BOOK FROM USERS' WANT TO READ LIST
+class DeleteWantToReadBook(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def delete(self, request, pk):
+        user_profile = UserProfile.objects.get(user=request.user)
+        book_to_remove = get_object_or_404(Book, pk=pk)
+        user_profile.books_want_to_read.remove(book_to_remove)
+
+        return Response(
+            {"message": f"Book {book_to_remove} removed from {user_profile}"}
+        )
+
+
+# DELETE A BOOK FROM USERS' READ LIST
+class DeleteReadBook(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def delete(self, request, pk):
+        user_profile = UserProfile.objects.get(user=request.user)
+        book_to_remove = get_object_or_404(Book, pk=pk)
+        user_profile.books_read.remove(book_to_remove)
+
+        return Response(
+            {"message": f"{book_to_remove} removed from {user_profile}'s read list"}
+        )
