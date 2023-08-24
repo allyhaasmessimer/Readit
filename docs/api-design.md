@@ -157,7 +157,7 @@
     },
     ```
 
-    ### Add Book To Want to Read List
+### Add Book To Want to Read List
 
 -   Endpoint path: want_to_read/<str:book_id>/
 -   Endpoint method: POST
@@ -176,7 +176,7 @@
     }
     ```
 
-    ### Add or Move Book To Read List
+### Add or Move Book To Read List
 
 -   Endpoint path: read/<str:book_id>/
 -   Endpoint method: POST
@@ -224,8 +224,77 @@
 -   Response: Remove book from read list
 
 -   Response shape (JSON):
+
     ```json
     {
         "message": "{book title} removed from {user profile}"
+    }
+    ```
+
+### Add Review to a Book
+
+-   Endpoint path: create_review/<int:pk>/
+-   Endpoint method: POST
+
+-   Headers:
+
+    -   Authorization: Bearer token
+
+-   Request shape (JSON):
+
+    ```json
+    {
+        "review_text": "This book is amazing!"
+    }
+    ```
+
+-   Response: Add review
+
+-   Response shape (JSON):
+
+    ```json
+    {
+        "message": "Review created successfully."
+    }
+    ```
+
+### User Reviews List
+
+-   Endpoint path: user/reviews/
+-   Endpoint method: GET
+
+-   Headers:
+
+    -   Authorization: Bearer token
+
+-   Response: List of books that user has reviews and the reviews
+
+-   Response shape (JSON):
+
+        ```json
+        {
+        "review_text": "",
+        "date_posted": "",
+        "book_title": ""
+        },
+
+        ```
+
+### Delete Review
+
+-   Endpoint path: delete_review/<int:pk>/
+-   Endpoint method: DELETE
+
+-   Headers:
+
+    -   Authorization: Bearer token
+
+-   Response: Remove review
+
+-   Response shape (JSON):
+
+    ```json
+    {
+        "message": "review removed from {user} review"
     }
     ```

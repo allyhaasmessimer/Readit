@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import User, UserProfile, Book
+from .models import User, UserProfile, Book, Review
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
@@ -177,7 +177,9 @@ class AddToWantToReadView(APIView):
         user_profile.books_want_to_read.add(book)
         print("Authenticated User:", request.user)
 
-        return Response({"message": f"Book added to your {user_profile} 'want to read' list."})
+        return Response(
+            {"message": f"Book added to your {user_profile} 'want to read' list."}
+        )
 
 
 # VIEW TO ADD A BOOK TO A USERS' READ LIST OR MOVE IT FROM WANT TO READ TO READ
@@ -228,7 +230,9 @@ class DeleteWantToReadBook(APIView):
         user_profile.books_want_to_read.remove(book_to_remove)
 
         return Response(
-            {"message": f"Book {book_to_remove} removed from {user_profile} want to read list"}
+            {
+                "message": f"Book {book_to_remove} removed from {user_profile} want to read list"
+            }
         )
 
 
@@ -244,3 +248,55 @@ class DeleteReadBook(APIView):
         return Response(
             {"message": f"{book_to_remove} removed from {user_profile}'s read list"}
         )
+
+
+# MAKE A REVIEW FOR A BOOK
+class CreateReview(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, pk):
+        user = request.user
+        book_to_review = get_object_or_404(Book, pk=pk)
+        review_text = request.data.get("review_text")
+
+        if user and book_to_review and review_text:
+            new_review = Review.objects.create(
+                user=user, book=book_to_review, review_text=review_text
+            )
+            new_review.save()
+            return Response({"message": "Review created successfully."})
+        else:
+            return Response({"error": "Invalid data provided."}, status=400)
+
+
+# GET ALL USERS' REVIEWS
+class UserReviewsView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        user = request.user
+        user_reviews = Review.objects.filter(user=user)
+
+        reviews_data = []
+        for review in user_reviews:
+            review_data = {
+                "id": review.id,
+                "review_text": review.review_text,
+                "date_posted": review.date_posted,
+                "book_title": review.book.title,
+            }
+            reviews_data.append(review_data)
+
+        return Response(reviews_data)
+
+
+# DELETE REVIEW
+class DeleteReview(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def delete(self, request, pk):
+        user = request.user
+        review_to_delete = get_object_or_404(Review, pk=pk, user=user)
+        review_to_delete.delete()
+
+        return Response({"message": f"review removed from {user}'s review"})

@@ -43,6 +43,8 @@ Add to Lists: Easily add books from search results to your lists.
 Move Between Lists: Transition books from "Want to Read" to "Read."
 Delete from Lists: Remove books effortlessly from your lists.
 Logout: Ensure privacy and return whenever you're ready.
+Add a Book Review: Write what you thought about a book.
+Delete a Book Review.
 
 ## Project Initialization
 

@@ -25,4 +25,7 @@ urlpatterns = [
         views.DeleteReadBook.as_view(),
         name="delete-read",
     ),
+    path("create_review/<int:pk>/", views.CreateReview.as_view(), name="create-review"),
+    path("user/reviews/", views.UserReviewsView.as_view(), name="user-reviews"),
+    path("delete_review/<int:pk>/", views.DeleteReview.as_view(), name="delete-review")
 ]
