@@ -7,6 +7,7 @@ Readit is an application that leverages the capabilities of a third-party API, s
 -   [API design](api-design.md)
 -   [Data model](data-model.md)
 -   [Integrations](integrations.md)
+-   [GHI](ghi.md)
 
 ## Intended market
 
