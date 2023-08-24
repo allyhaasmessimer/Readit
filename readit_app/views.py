@@ -228,7 +228,7 @@ class DeleteWantToReadBook(APIView):
         user_profile.books_want_to_read.remove(book_to_remove)
 
         return Response(
-            {"message": f"Book {book_to_remove} removed from {user_profile}"}
+            {"message": f"Book {book_to_remove} removed from {user_profile} want to read list"}
         )
 
 
