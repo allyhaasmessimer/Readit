@@ -85,7 +85,7 @@ WSGI_APPLICATION = "readit.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-#FOR LOCAL RUNNING
+# FOR LOCAL RUNNING
 # DATABASES = {
 #     "default": {
 #         "ENGINE": "django.db.backends.postgresql",
