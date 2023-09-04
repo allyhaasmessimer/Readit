@@ -21,7 +21,8 @@ API_KEY = config('API_KEY')
 SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = ['readit1-1f9246305140.herokuapp.com/']
+ALLOWED_HOSTS = ['readit1-1f9246305140.herokuapp.com']
+
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
