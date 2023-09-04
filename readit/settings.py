@@ -30,7 +30,7 @@ CORS_ALLOWED_ORIGINS = [
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["readit1-1f9246305140.herokuapp.com", ".herokuapp.com"]
 
