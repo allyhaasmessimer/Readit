@@ -5,7 +5,8 @@ from decouple import config
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-TEMPLATES_DIRS = [os.path.join(BASE_DIR, "templates")]
+TEMPLATES_DIRS = os.path.join(BASE_DIR, "templates")
+
 
 
 REST_FRAMEWORK = {
