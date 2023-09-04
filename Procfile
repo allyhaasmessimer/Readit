@@ -1,1 +1,1 @@
-web: gunicorn readit.wsgi --log-file -
+web: gunicorn readit.wsgi
