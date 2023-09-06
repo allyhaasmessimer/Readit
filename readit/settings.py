@@ -6,12 +6,16 @@ from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
-API_KEY = config('API_KEY')
+API_KEY = config("API_KEY")
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = False
-ALLOWED_HOSTS = ['readit1-1f9246305140.herokuapp.com']
+ALLOWED_HOSTS = [
+    "readit1-1f9246305140.herokuapp.com",
+    "http://localhost:3000",
+    "http://192.168.0.11:3000",
+]
 
 
 INSTALLED_APPS = [
@@ -24,6 +28,7 @@ INSTALLED_APPS = [
     "readit_app.apps.ReaditAppConfig",
     "rest_framework",
     "rest_framework.authtoken",
+    "corsheaders",
 ]
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -39,6 +44,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 ROOT_URLCONF = "readit.urls"
 TEMPLATES = [
@@ -59,7 +65,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "readit.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-#FOR LOCAL RUNNING
+# FOR LOCAL RUNNING
 # DATABASES = {
 #     "default": {
 #         "ENGINE": "django.db.backends.postgresql",
@@ -70,11 +76,7 @@ WSGI_APPLICATION = "readit.wsgi.application"
 #         "PORT": "5432",
 #     }
 # }
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL')
-    )
-}
+DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -97,7 +99,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "readit_app.User"
