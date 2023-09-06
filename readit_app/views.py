@@ -134,6 +134,9 @@ class SearchView(APIView):
         }
         api_url = "https://www.googleapis.com/books/v1/volumes"
 
+        full_url = f"{api_url}?q={param['q']}&API_KEY={param['API_KEY']}"
+        print("Request URL:", full_url)
+
         response = requests.get(url=api_url, params=param)
         data = response.json()
         print(data)
