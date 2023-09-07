@@ -13,8 +13,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = False
 ALLOWED_HOSTS = [
     "readit1-1f9246305140.herokuapp.com",
-    "http://localhost:3000",
-    "http://192.168.0.11:3000",
+    "localhost",
+    "192.168.0.11",
 ]
 
 
