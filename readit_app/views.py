@@ -23,10 +23,7 @@ class GetUsername(APIView):
 
     def get(self, request, *args, **kwargs):
         user_profile = get_object_or_404(UserProfile, user=request.user)
-        print("USER PROFILE:", user_profile)
-        username = user_profile.username
-        print("username:", username)
-        return Response({"username": username})
+        return Response({"username": user_profile})
 
 
 #  SIGN UP VIEW
