@@ -17,6 +17,17 @@ GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1/volumes"
 api_key = config("API_KEY")
 
 
+# GET USERNAME
+class GetUsername(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        user_profile = get_object_or_404(UserProfile, user=request.user)
+
+        username = user_profile.username
+        return Response({"username": username})
+
+
 #  SIGN UP VIEW
 class SignUpView(APIView):
     permission_classes = (AllowAny,)
