@@ -22,8 +22,8 @@ class GetUsername(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
-        user_profile = get_object_or_404(UserProfile, user=request.user)
-        return Response({"username": user_profile})
+        username = request.user.username
+        return Response({"username": username})
 
 
 #  SIGN UP VIEW
