@@ -123,6 +123,11 @@ class UserProfileListView(APIView):
             {"id": book.id, "title": book.title} for book in books_want_to_read
         ]
 
+        if not books_read_data:
+            books_read_data = []
+        if not books_want_to_read_data:
+            books_want_to_read_data = []
+
         data = {
             "username": user_profile.user.username,
             "books_read": books_read_data,
