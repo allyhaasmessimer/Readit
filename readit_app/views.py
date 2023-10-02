@@ -40,6 +40,7 @@ class SignUpView(APIView):
             if created:
                 user.set_password(password)
                 user.save()
+                user_profile = UserProfile.objects.create(user=user)
                 token, token_created = Token.objects.get_or_create(user=user)
                 return Response({"token": token.key})
             else:
@@ -82,30 +83,30 @@ class LogoutView(APIView):
 
 
 #   ADD USER PROFILE VIEW
-class AddUserProfile(APIView):
-    permission_classes = (IsAuthenticated,)
+# class AddUserProfile(APIView):
+#     permission_classes = (IsAuthenticated,)
 
-    def post(self, request, *args, **kwargs):
-        user = request.user
+#     def post(self, request, *args, **kwargs):
+#         user = request.user
 
-        books_read_titles = request.data.get("books_read")
-        books_want_to_read_titles = request.data.get("books_want_to_read")
+#         books_read_titles = request.data.get("books_read")
+#         books_want_to_read_titles = request.data.get("books_want_to_read")
 
-        user_profile, created = UserProfile.objects.get_or_create(user=user)
+#         user_profile, created = UserProfile.objects.get_or_create(user=user)
 
-        if books_read_titles:
-            books_read = Book.objects.filter(title__in=books_read_titles)
-            user_profile.books_read.add(*books_read)
+#         if books_read_titles:
+#             books_read = Book.objects.filter(title__in=books_read_titles)
+#             user_profile.books_read.add(*books_read)
 
-        if books_want_to_read_titles:
-            books_want_to_read = Book.objects.filter(
-                title__in=books_want_to_read_titles
-            )
-            user_profile.books_want_to_read.add(*books_want_to_read)
+#         if books_want_to_read_titles:
+#             books_want_to_read = Book.objects.filter(
+#                 title__in=books_want_to_read_titles
+#             )
+#             user_profile.books_want_to_read.add(*books_want_to_read)
 
-        user_profile.save()
+#         user_profile.save()
 
-        return Response({"message": "User profile updated successfully."})
+#         return Response({"message": "User profile updated successfully."})
 
 
 # LIST OF FAV'D BOOKS BY A USER
