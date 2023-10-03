@@ -13,8 +13,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = False
 ALLOWED_HOSTS = [
     "readit1-1f9246305140.herokuapp.com",
+    "651c555ad875b8000886cff6--statuesque-sherbet-751acf.netlify.app",
     "localhost",
-    "192.168.0.11",
 ]
 
 
@@ -39,10 +39,10 @@ REST_FRAMEWORK = {
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://192.168.0.11:3000",
+    "651c555ad875b8000886cff6--statuesque-sherbet-751acf.netlify.app",
 ]
 CORS_ALLOW_HEADERS = [
-    "authentication",  
+    "authentication",
     "accept",
     "accept-encoding",
     "authorization",
