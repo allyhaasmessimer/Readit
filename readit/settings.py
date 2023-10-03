@@ -15,6 +15,7 @@ ALLOWED_HOSTS = [
     "readit1-1f9246305140.herokuapp.com",
     "651c555ad875b8000886cff6--statuesque-sherbet-751acf.netlify.app",
     "localhost",
+    "https://651c555ad875b8000886cff6--statuesque-sherbet-751acf.netlify.app",
 ]
 
 
@@ -40,6 +41,7 @@ CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "651c555ad875b8000886cff6--statuesque-sherbet-751acf.netlify.app",
+    "https://651c555ad875b8000886cff6--statuesque-sherbet-751acf.netlify.app",
 ]
 CORS_ALLOW_HEADERS = [
     "authentication",
